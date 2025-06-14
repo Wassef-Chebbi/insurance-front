@@ -87,17 +87,13 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadData();
+    this.getAllUsers();
   }
 
-  loadData() {
+  getAllUsers() {
     this.userService.getAllUsers().subscribe((data) => {
       this.users.set(data);
-      console.log(this.users());
     });
-
-
-
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -138,23 +134,38 @@ export class UsersComponent implements OnInit {
     this.submitted = false;
   }
 
-  deleteUser(product: any) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + product.name + '?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.users.set(this.users().filter((val) => val.id !== product.id));
-        // this.user = {};
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Deleted',
-          life: 3000
-        });
-      }
-    });
-  }
+  deleteUser(user: any) {
+  this.confirmationService.confirm({
+    message: 'Are you sure you want to delete ' + user.firstname + '?',
+    header: 'Confirm',
+    icon: 'pi pi-exclamation-triangle',
+    accept: () => {
+      this.userService.deleteUser(user.id).subscribe({
+        next: () => {
+          // Remove user from UI
+          this.users.set(this.users().filter((val) => val.id !== user.id));
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: 'User Deleted',
+            life: 3000
+          });
+        },
+        error: (err) => {
+          console.error('Error deleting user:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete user',
+            life: 3000
+          });
+        }
+      });
+    }
+  });
+}
+
 
   findIndexById(id: string): number {
     let index = -1;
@@ -195,7 +206,35 @@ export class UsersComponent implements OnInit {
 
     if (this.user.firstname?.trim()) {
       if (this.user.id) {
-        // Optional: Add update logic here
+            // 🔁 Update user via backend service
+          this.userService.updateUser(this.user.id, this.user).subscribe({
+            next: (updatedUser) => {
+              const updatedUsers = [...this.users()];
+              const index = updatedUsers.findIndex(u => u.id === this.user.id);
+              if (index !== -1) {
+                updatedUsers[index] = updatedUser;
+              }
+              this.users.set(updatedUsers);
+
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'User Updated',
+                life: 3000
+              });
+              this.userDialog = false;
+              this.user = new User(); // reset form
+            },
+            error: (err) => {
+              console.error('Error updating user:', err);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'User update failed',
+                life: 3000
+              });
+            }
+          });
       } else {
         // Add user via backend service
         delete this.user.role;

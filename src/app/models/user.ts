@@ -2,8 +2,9 @@ export interface User {
     id: string;
     firstname: string;
     lastname: string;
-    email: string;
     number: string;
+    email: string;
+    password?: string;
     image?: string;
     role?: string;
 
@@ -14,8 +15,9 @@ export class User {
         public id: string = '',
         public firstname: string = '',
         public lastname: string = '',
-        public email: string = '',
         public number: string = '',
+        public email: string = '',
+        public password?: string,
         public role?: string,
         public image?: string
     ) { }

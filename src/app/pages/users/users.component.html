@@ -99,6 +99,11 @@
                 <small class="text-red-500" *ngIf="submitted && !user.email">Email is required.</small>
             </div>
             <div>
+                <label for="email" class="block font-bold mb-3">Password</label>
+                <input type="text" pInputText id="email" [(ngModel)]="user.password" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !user.password">Password is required.</small>
+            </div>
+            <div>
                 <label for="number" class="block font-bold mb-3">Number</label>
                 <input type="number" pInputText id="number" [(ngModel)]="user.number" required autofocus fluid />
                 <small class="text-red-500" *ngIf="submitted && !user.number">Number is required.</small>
